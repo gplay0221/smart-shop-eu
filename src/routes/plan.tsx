@@ -51,8 +51,10 @@ function PlanPage() {
       const s = await runSuggest({ data: { mealType, craving, servings } });
       setSuggestion(s);
       // Match ingredients to products in this city
-      const { data: products } = await supabase.from("products").select("*");
-      if (!products) return [] as PlanItem[];
+      type Product = { id: string; name: string; unit: string; category: string; image_url: string | null };
+      const { data: productsData } = await supabase.from("products").select("*");
+      const products: Product[] = productsData ?? [];
+      if (products.length === 0) return [] as PlanItem[];
       const { data: stores } = await supabase.from("stores").select("*").eq("city_id", location.cityId);
       const storeIds = (stores ?? []).map((st) => st.id);
       const storeMap = new Map((stores ?? []).map((st) => [st.id, st]));
@@ -69,7 +71,7 @@ function PlanPage() {
       function match(name: string) {
         const q = name.toLowerCase();
         // best-effort fuzzy: contains match, then token overlap
-        let best: (typeof products)[number] | null = null;
+        let best: Product | null = null;
         let bestScore = 0;
         for (const p of products) {
           const n = p.name.toLowerCase();
