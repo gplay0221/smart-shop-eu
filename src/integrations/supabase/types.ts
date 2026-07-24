@@ -14,7 +14,238 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cities: {
+        Row: {
+          country_code: string
+          id: string
+          name: string
+        }
+        Insert: {
+          country_code: string
+          id?: string
+          name: string
+        }
+        Update: {
+          country_code?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cities_country_code_fkey"
+            columns: ["country_code"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      countries: {
+        Row: {
+          code: string
+          currency: string
+          flag: string
+          name: string
+        }
+        Insert: {
+          code: string
+          currency?: string
+          flag: string
+          name: string
+        }
+        Update: {
+          code?: string
+          currency?: string
+          flag?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      list_items: {
+        Row: {
+          checked: boolean
+          created_at: string
+          currency: string
+          id: string
+          list_id: string
+          price_cents: number
+          product_id: string
+          quantity: number
+          store_id: string
+        }
+        Insert: {
+          checked?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          list_id: string
+          price_cents: number
+          product_id: string
+          quantity?: number
+          store_id: string
+        }
+        Update: {
+          checked?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          list_id?: string
+          price_cents?: number
+          product_id?: string
+          quantity?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_items_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "shopping_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "list_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "list_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prices: {
+        Row: {
+          currency: string
+          id: string
+          price_cents: number
+          product_id: string
+          store_id: string
+        }
+        Insert: {
+          currency?: string
+          id?: string
+          price_cents: number
+          product_id: string
+          store_id: string
+        }
+        Update: {
+          currency?: string
+          id?: string
+          price_cents?: number
+          product_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prices_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string
+          id: string
+          image_url: string | null
+          name: string
+          unit: string
+        }
+        Insert: {
+          category: string
+          id?: string
+          image_url?: string | null
+          name: string
+          unit?: string
+        }
+        Update: {
+          category?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          unit?: string
+        }
+        Relationships: []
+      }
+      shopping_lists: {
+        Row: {
+          city_id: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city_id?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_lists_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          address: string
+          chain: string
+          city_id: string
+          id: string
+        }
+        Insert: {
+          address: string
+          chain: string
+          city_id: string
+          id?: string
+        }
+        Update: {
+          address?: string
+          chain?: string
+          city_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stores_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

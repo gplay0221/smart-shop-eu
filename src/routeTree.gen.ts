@@ -9,38 +9,121 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ListsRouteImport } from './routes/lists'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as ListsIdRouteImport } from './routes/lists.$id'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListsRoute = ListsRouteImport.update({
+  id: '/lists',
+  path: '/lists',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListsIdRoute = ListsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ListsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/lists': typeof ListsRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/lists/$id': typeof ListsIdRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/lists': typeof ListsRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/lists/$id': typeof ListsIdRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/lists': typeof ListsRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/lists/$id': typeof ListsIdRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/lists'
+    | '/sitemap.xml'
+    | '/lists/$id'
+    | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/lists' | '/sitemap.xml' | '/lists/$id' | '/product/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/lists'
+    | '/sitemap.xml'
+    | '/lists/$id'
+    | '/product/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  ListsRoute: typeof ListsRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ProductIdRoute: typeof ProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lists': {
+      id: '/lists'
+      path: '/lists'
+      fullPath: '/lists'
+      preLoaderRoute: typeof ListsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +131,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lists/$id': {
+      id: '/lists/$id'
+      path: '/$id'
+      fullPath: '/lists/$id'
+      preLoaderRoute: typeof ListsIdRouteImport
+      parentRoute: typeof ListsRoute
+    }
   }
 }
 
+interface ListsRouteChildren {
+  ListsIdRoute: typeof ListsIdRoute
+}
+
+const ListsRouteChildren: ListsRouteChildren = {
+  ListsIdRoute: ListsIdRoute,
+}
+
+const ListsRouteWithChildren = ListsRoute._addFileChildren(ListsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  ListsRoute: ListsRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
