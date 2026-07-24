@@ -119,6 +119,121 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          alert_id: string | null
+          body: string
+          created_at: string
+          currency: string
+          id: string
+          price_cents: number | null
+          product_id: string | null
+          read: boolean
+          store_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          alert_id?: string | null
+          body: string
+          created_at?: string
+          currency?: string
+          id?: string
+          price_cents?: number | null
+          product_id?: string | null
+          read?: boolean
+          store_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          alert_id?: string | null
+          body?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          price_cents?: number | null
+          product_id?: string | null
+          read?: boolean
+          store_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "price_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_alerts: {
+        Row: {
+          active: boolean
+          city_id: string
+          created_at: string
+          currency: string
+          id: string
+          notified_at: string | null
+          product_id: string
+          target_cents: number
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          city_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          notified_at?: string | null
+          product_id: string
+          target_cents: number
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          city_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          notified_at?: string | null
+          product_id?: string
+          target_cents?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_alerts_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_alerts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prices: {
         Row: {
           currency: string
@@ -223,18 +338,24 @@ export type Database = {
           chain: string
           city_id: string
           id: string
+          lat: number | null
+          lng: number | null
         }
         Insert: {
           address: string
           chain: string
           city_id: string
           id?: string
+          lat?: number | null
+          lng?: number | null
         }
         Update: {
           address?: string
           chain?: string
           city_id?: string
           id?: string
+          lat?: number | null
+          lng?: number | null
         }
         Relationships: [
           {
