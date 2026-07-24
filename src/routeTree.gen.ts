@@ -10,15 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PlanRouteImport } from './routes/plan'
 import { Route as ListsRouteImport } from './routes/lists'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ListsIdRouteImport } from './routes/lists.$id'
+import { Route as ApiPublicHooksCheckAlertsRouteImport } from './routes/api/public/hooks/check-alerts'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanRoute = PlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListsRoute = ListsRouteImport.update({
@@ -46,31 +53,43 @@ const ListsIdRoute = ListsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ListsRoute,
 } as any)
+const ApiPublicHooksCheckAlertsRoute =
+  ApiPublicHooksCheckAlertsRouteImport.update({
+    id: '/api/public/hooks/check-alerts',
+    path: '/api/public/hooks/check-alerts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
+  '/plan': typeof PlanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
+  '/plan': typeof PlanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
+  '/plan': typeof PlanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -78,27 +97,41 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/lists'
+    | '/plan'
     | '/sitemap.xml'
     | '/lists/$id'
     | '/product/$id'
+    | '/api/public/hooks/check-alerts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/lists' | '/sitemap.xml' | '/lists/$id' | '/product/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/lists'
+    | '/plan'
+    | '/sitemap.xml'
+    | '/lists/$id'
+    | '/product/$id'
+    | '/api/public/hooks/check-alerts'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/lists'
+    | '/plan'
     | '/sitemap.xml'
     | '/lists/$id'
     | '/product/$id'
+    | '/api/public/hooks/check-alerts'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   ListsRoute: typeof ListsRouteWithChildren
+  PlanRoute: typeof PlanRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProductIdRoute: typeof ProductIdRoute
+  ApiPublicHooksCheckAlertsRoute: typeof ApiPublicHooksCheckAlertsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -108,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan': {
+      id: '/plan'
+      path: '/plan'
+      fullPath: '/plan'
+      preLoaderRoute: typeof PlanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lists': {
@@ -145,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListsIdRouteImport
       parentRoute: typeof ListsRoute
     }
+    '/api/public/hooks/check-alerts': {
+      id: '/api/public/hooks/check-alerts'
+      path: '/api/public/hooks/check-alerts'
+      fullPath: '/api/public/hooks/check-alerts'
+      preLoaderRoute: typeof ApiPublicHooksCheckAlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -162,8 +209,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   ListsRoute: ListsRouteWithChildren,
+  PlanRoute: PlanRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProductIdRoute: ProductIdRoute,
+  ApiPublicHooksCheckAlertsRoute: ApiPublicHooksCheckAlertsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
