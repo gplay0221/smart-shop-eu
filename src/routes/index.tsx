@@ -45,7 +45,8 @@ function Home() {
       const { data: stores, error: e1 } = await supabase.from("stores").select("id, chain, address").eq("city_id", location!.cityId);
       if (e1) throw e1;
       const storeIds = stores.map(s => s.id);
-      if (storeIds.length === 0) return { byProduct: {} as Record<string, { price_cents: number; store: typeof stores[number] }>, stores };
+      type Entry = { price_cents: number; currency: string; store: typeof stores[number] };
+      if (storeIds.length === 0) return { byProduct: {} as Record<string, Entry>, stores };
       const { data: prices, error: e2 } = await supabase
         .from("prices")
         .select("product_id, store_id, price_cents, currency")
