@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "@/hooks/use-location";
+import { useProfile } from "@/hooks/use-profile";
+import { useWeeklySavings } from "@/hooks/use-savings";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, ListChecks, Trash2 } from "lucide-react";
+import { Plus, ListChecks, Trash2, Sparkles, TrendingDown } from "lucide-react";
 import { formatPrice } from "@/lib/location";
 
 export const Route = createFileRoute("/lists")({
@@ -24,6 +26,8 @@ export const Route = createFileRoute("/lists")({
 function ListsPage() {
   const { user, ready } = useAuth();
   const { location } = useLocation();
+  const { needsOnboarding } = useProfile();
+  const { data: savings } = useWeeklySavings();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [name, setName] = useState("");
@@ -31,6 +35,10 @@ function ListsPage() {
   useEffect(() => {
     if (ready && !user) navigate({ to: "/auth" });
   }, [ready, user, navigate]);
+
+  useEffect(() => {
+    if (needsOnboarding) navigate({ to: "/onboarding" });
+  }, [needsOnboarding, navigate]);
 
   const { data: lists } = useQuery({
     queryKey: ["lists"],
@@ -76,6 +84,24 @@ function ListsPage() {
             <p className="text-muted-foreground text-sm mt-1">Grouped by supermarket so you know exactly where to go.</p>
           </div>
         </div>
+
+        {savings && savings.savedCents > 0 && (
+          <div className="mb-6 rounded-2xl bg-gradient-to-r from-brand to-brand/80 text-brand-foreground p-5 sm:p-6 shadow-lg flex items-center gap-4">
+            <div className="grid place-items-center size-12 rounded-full bg-white/15">
+              <Sparkles className="size-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Micro-win of the week</p>
+              <p className="font-display text-2xl sm:text-3xl font-bold mt-0.5 truncate">
+                You saved {formatPrice(savings.savedCents, savings.currency)} this week
+              </p>
+              <p className="text-xs opacity-80 mt-0.5">
+                vs. average prices, across {savings.itemCount} checked item{savings.itemCount === 1 ? "" : "s"}.
+              </p>
+            </div>
+            <TrendingDown className="hidden sm:block size-8 opacity-40" />
+          </div>
+        )}
 
         <form onSubmit={createList} className="mb-8 flex gap-2">
           <input
