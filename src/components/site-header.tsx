@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLocation } from "@/hooks/use-location";
 import { useAuth } from "@/hooks/use-auth";
 import { useNotifications } from "@/hooks/use-notifications";
-import { MapPin, ChevronDown, LogIn, LogOut, ListChecks, Bell, Sparkles } from "lucide-react";
+import { MapPin, ChevronDown, LogIn, LogOut, Bell } from "lucide-react";
 
 export function SiteHeader() {
   const { location } = useLocation();
