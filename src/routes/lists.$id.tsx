@@ -31,6 +31,7 @@ function ListDetail() {
   const { user, ready } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [activeStore, setActiveStore] = useState<string | null>(null);
 
   useEffect(() => { if (ready && !user) navigate({ to: "/auth" }); }, [ready, user, navigate]);
 
@@ -120,54 +121,91 @@ function ListDetail() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
-            {grouped.map(([storeId, g], idx) => (
-              <section key={storeId} className="rounded-2xl border border-border bg-card overflow-hidden">
-                <header className="flex items-center justify-between px-5 py-4 bg-brand-soft/50 border-b border-border">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="grid place-items-center size-8 rounded-lg bg-brand text-brand-foreground font-bold text-sm">
-                      {idx + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <h2 className="font-display font-bold truncate">{g.chain}</h2>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                        <MapPin className="size-3" /> {g.address}
-                      </p>
+          <div className="space-y-4">
+            {grouped.map(([storeId, g], idx) => {
+              const isActive = activeStore === storeId;
+              const isFocused = activeStore !== null;
+              const doneCount = g.items.filter(i => i.checked).length;
+              return (
+                <section
+                  key={storeId}
+                  className={`rounded-2xl border bg-card overflow-hidden transition ${
+                    isActive ? "border-brand shadow-lg" : "border-border"
+                  } ${isFocused && !isActive ? "opacity-40" : ""}`}
+                >
+                  <header className="flex items-center justify-between gap-3 px-5 py-4 bg-brand-soft/50 border-b border-border">
+                    <button
+                      onClick={() => setActiveStore(isActive ? null : storeId)}
+                      className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                    >
+                      <span className={`grid place-items-center size-8 rounded-lg font-bold text-sm shrink-0 ${
+                        isActive ? "bg-brand text-brand-foreground" : "bg-brand/10 text-brand"
+                      }`}>
+                        {idx + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <h2 className="font-display font-bold truncate">{g.chain}</h2>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                          <MapPin className="size-3" /> {g.address}
+                        </p>
+                      </div>
+                    </button>
+                    <div className="text-right shrink-0 flex items-center gap-3">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                          {doneCount}/{g.items.length} · Subtotal
+                        </p>
+                        <p className="font-display font-bold">{formatPrice(g.total, currency)}</p>
+                      </div>
+                      {!isActive ? (
+                        <button
+                          onClick={() => setActiveStore(storeId)}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs font-semibold hover:opacity-90"
+                        >
+                          <Play className="size-3" /> Start
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setActiveStore(null)}
+                          className="text-muted-foreground hover:text-foreground"
+                          aria-label="Collapse"
+                        >
+                          <ChevronDown className="size-4" />
+                        </button>
+                      )}
                     </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Subtotal</p>
-                    <p className="font-display font-bold">{formatPrice(g.total, currency)}</p>
-                  </div>
-                </header>
-                <ul className="divide-y divide-border">
-                  {g.items.map(it => (
-                    <li key={it.id} className={`flex items-center gap-3 px-5 py-3 ${it.checked ? "opacity-50" : ""}`}>
-                      <button
-                        onClick={() => toggle(it)}
-                        aria-label={it.checked ? "Uncheck" : "Check"}
-                        className={`size-5 rounded border-2 shrink-0 ${it.checked ? "bg-savings border-savings" : "border-border"}`}
-                      >
-                        {it.checked && <svg viewBox="0 0 20 20" className="text-background"><path d="M5 10l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2.5"/></svg>}
-                      </button>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-medium truncate ${it.checked ? "line-through" : ""}`}>{it.products?.name}</p>
-                        <p className="text-xs text-muted-foreground">{it.products?.unit}</p>
-                      </div>
-                      <div className="flex items-center gap-1 border border-border rounded-md">
-                        <button onClick={() => updateQty(it, it.quantity - 1)} className="size-7 hover:bg-secondary">−</button>
-                        <span className="w-6 text-center text-sm">{it.quantity}</span>
-                        <button onClick={() => updateQty(it, it.quantity + 1)} className="size-7 hover:bg-secondary">+</button>
-                      </div>
-                      <p className="font-mono text-sm w-16 text-right">{formatPrice(it.price_cents * it.quantity, it.currency)}</p>
-                      <button onClick={() => remove(it)} className="text-muted-foreground hover:text-destructive" aria-label="Remove">
-                        <Trash2 className="size-4" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
+                  </header>
+                  {(!isFocused || isActive) && (
+                    <ul className="divide-y divide-border">
+                      {g.items.map(it => (
+                        <li key={it.id} className={`flex items-center gap-3 px-5 py-3 ${it.checked ? "opacity-50" : ""}`}>
+                          <button
+                            onClick={() => toggle(it)}
+                            aria-label={it.checked ? "Uncheck" : "Check"}
+                            className={`size-5 rounded border-2 shrink-0 ${it.checked ? "bg-savings border-savings" : "border-border"}`}
+                          >
+                            {it.checked && <svg viewBox="0 0 20 20" className="text-background"><path d="M5 10l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2.5"/></svg>}
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-medium truncate ${it.checked ? "line-through" : ""}`}>{it.products?.name}</p>
+                            <p className="text-xs text-muted-foreground">{it.products?.unit}</p>
+                          </div>
+                          <div className="flex items-center gap-1 border border-border rounded-md">
+                            <button onClick={() => updateQty(it, it.quantity - 1)} className="size-7 hover:bg-secondary">−</button>
+                            <span className="w-6 text-center text-sm">{it.quantity}</span>
+                            <button onClick={() => updateQty(it, it.quantity + 1)} className="size-7 hover:bg-secondary">+</button>
+                          </div>
+                          <p className="font-mono text-sm w-16 text-right">{formatPrice(it.price_cents * it.quantity, it.currency)}</p>
+                          <button onClick={() => remove(it)} className="text-muted-foreground hover:text-destructive" aria-label="Remove">
+                            <Trash2 className="size-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              );
+            })}
           </div>
         )}
       </main>
