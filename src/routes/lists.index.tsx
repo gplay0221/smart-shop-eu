@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Plus, ListChecks, Trash2, Sparkles, TrendingDown } from "lucide-react";
 import { formatPrice } from "@/lib/location";
 
-export const Route = createFileRoute("/lists")({
+export const Route = createFileRoute("/lists/")({
   head: () => ({
     meta: [
       { title: "My Shopping Lists · EuroSaver" },
