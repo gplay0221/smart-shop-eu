@@ -29,9 +29,13 @@ export function SiteHeader() {
             <Link to="/plan" className="hover:text-brand transition-colors [&.active]:text-foreground">
               Meal Planner
             </Link>
+            <Link to="/pantry" className="hover:text-brand transition-colors [&.active]:text-foreground">
+              Pantry
+            </Link>
             <Link to="/lists" className="hover:text-brand transition-colors [&.active]:text-foreground">
               My Lists
             </Link>
+
           </nav>
         </div>
         <div className="flex items-center gap-2">
