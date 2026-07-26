@@ -6,7 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { useLocation } from "@/hooks/use-location";
 import { useAuth } from "@/hooks/use-auth";
+import { usePantry } from "@/hooks/use-pantry";
 import { suggestMeal, type MealSuggestion } from "@/lib/ai.functions";
+
 import { formatPrice } from "@/lib/location";
 import { Sparkles, ChefHat, ShoppingBasket, Loader2, Store as StoreIcon, MapPin } from "lucide-react";
 import { toast } from "sonner";
