@@ -51,16 +51,42 @@ function ListDetail() {
     queryFn: async (): Promise<Row[]> => {
       const { data, error } = await supabase
         .from("list_items")
-        .select("*, products(name, category, unit), stores(chain, address)")
+        .select("*, products(name, brand, category, unit), stores(chain, address)")
         .eq("list_id", id)
         .order("created_at");
       if (error) throw error;
-      return data as Row[];
+      return (data ?? []) as unknown as Row[];
     },
   });
 
   async function toggle(item: Row) {
-    await supabase.from("list_items").update({ checked: !item.checked }).eq("id", item.id);
+    const nextChecked = !item.checked;
+    await supabase.from("list_items").update({ checked: nextChecked }).eq("id", item.id);
+
+    // Purchased items move straight into the pantry
+    if (nextChecked && user) {
+      const { data: existing } = await supabase
+        .from("pantry_items")
+        .select("id, quantity")
+        .eq("user_id", user.id)
+        .eq("product_id", item.product_id)
+        .maybeSingle();
+      if (existing) {
+        await supabase.from("pantry_items")
+          .update({ quantity: existing.quantity + item.quantity })
+          .eq("id", existing.id);
+      } else {
+        await supabase.from("pantry_items").insert({
+          user_id: user.id,
+          product_id: item.product_id,
+          name: item.products?.name ?? "Item",
+          quantity: item.quantity,
+          unit: item.products?.unit ?? "pc",
+        });
+      }
+      toast.success(`${item.products?.name ?? "Item"} added to your pantry`);
+      qc.invalidateQueries({ queryKey: ["pantry"] });
+    }
     qc.invalidateQueries({ queryKey: ["list-items", id] });
   }
   async function updateQty(item: Row, qty: number) {
