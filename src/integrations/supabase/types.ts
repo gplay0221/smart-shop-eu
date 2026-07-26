@@ -319,6 +319,7 @@ export type Database = {
       }
       products: {
         Row: {
+          brand: string | null
           category: string
           id: string
           image_url: string | null
@@ -326,6 +327,7 @@ export type Database = {
           unit: string
         }
         Insert: {
+          brand?: string | null
           category: string
           id?: string
           image_url?: string | null
@@ -333,6 +335,7 @@ export type Database = {
           unit?: string
         }
         Update: {
+          brand?: string | null
           category?: string
           id?: string
           image_url?: string | null

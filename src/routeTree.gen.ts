@@ -16,6 +16,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ListsRouteImport } from './routes/lists'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ListsIndexRouteImport } from './routes/lists.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ListsIdRouteImport } from './routes/lists.$id'
 import { Route as ApiPublicHooksCheckAlertsRouteImport } from './routes/api/public/hooks/check-alerts'
@@ -55,6 +56,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ListsIndexRoute = ListsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ListsRoute,
+} as any)
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
@@ -82,18 +88,19 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/lists/': typeof ListsIndexRoute
   '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/lists': typeof ListsIndexRoute
   '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
 }
 export interface FileRoutesById {
@@ -107,6 +114,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/lists/': typeof ListsIndexRoute
   '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
 }
 export interface FileRouteTypes {
@@ -121,18 +129,19 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/lists/$id'
     | '/product/$id'
+    | '/lists/'
     | '/api/public/hooks/check-alerts'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/lists'
     | '/onboarding'
     | '/pantry'
     | '/plan'
     | '/sitemap.xml'
     | '/lists/$id'
     | '/product/$id'
+    | '/lists'
     | '/api/public/hooks/check-alerts'
   id:
     | '__root__'
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/lists/$id'
     | '/product/$id'
+    | '/lists/'
     | '/api/public/hooks/check-alerts'
   fileRoutesById: FileRoutesById
 }
@@ -211,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lists/': {
+      id: '/lists/'
+      path: '/'
+      fullPath: '/lists/'
+      preLoaderRoute: typeof ListsIndexRouteImport
+      parentRoute: typeof ListsRoute
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
@@ -237,10 +254,12 @@ declare module '@tanstack/react-router' {
 
 interface ListsRouteChildren {
   ListsIdRoute: typeof ListsIdRoute
+  ListsIndexRoute: typeof ListsIndexRoute
 }
 
 const ListsRouteChildren: ListsRouteChildren = {
   ListsIdRoute: ListsIdRoute,
+  ListsIndexRoute: ListsIndexRoute,
 }
 
 const ListsRouteWithChildren = ListsRoute._addFileChildren(ListsRouteChildren)
