@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PlanRouteImport } from './routes/plan'
+import { Route as PantryRouteImport } from './routes/pantry'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ListsRouteImport } from './routes/lists'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -27,6 +28,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const PlanRoute = PlanRouteImport.update({
   id: '/plan',
   path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PantryRoute = PantryRouteImport.update({
+  id: '/pantry',
+  path: '/pantry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/lists/$id': typeof ListsIdRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/lists'
     | '/onboarding'
+    | '/pantry'
     | '/plan'
     | '/sitemap.xml'
     | '/lists/$id'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/lists'
     | '/onboarding'
+    | '/pantry'
     | '/plan'
     | '/sitemap.xml'
     | '/lists/$id'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/lists'
     | '/onboarding'
+    | '/pantry'
     | '/plan'
     | '/sitemap.xml'
     | '/lists/$id'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ListsRoute: typeof ListsRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
+  PantryRoute: typeof PantryRoute
   PlanRoute: typeof PlanRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/plan'
       fullPath: '/plan'
       preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pantry': {
+      id: '/pantry'
+      path: '/pantry'
+      fullPath: '/pantry'
+      preLoaderRoute: typeof PantryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -230,6 +250,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ListsRoute: ListsRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
+  PantryRoute: PantryRoute,
   PlanRoute: PlanRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProductIdRoute: ProductIdRoute,

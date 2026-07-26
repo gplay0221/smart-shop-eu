@@ -6,7 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { useLocation } from "@/hooks/use-location";
 import { useAuth } from "@/hooks/use-auth";
+import { usePantry } from "@/hooks/use-pantry";
 import { suggestMeal, type MealSuggestion } from "@/lib/ai.functions";
+
 import { formatPrice } from "@/lib/location";
 import { Sparkles, ChefHat, ShoppingBasket, Loader2, Store as StoreIcon, MapPin } from "lucide-react";
 import { toast } from "sonner";
@@ -42,14 +44,24 @@ function PlanPage() {
   const [mealType, setMealType] = useState<string>("Dinner");
   const [craving, setCraving] = useState("");
   const [servings, setServings] = useState(2);
+  const [usePantryItems, setUsePantryItems] = useState(false);
   const [suggestion, setSuggestion] = useState<MealSuggestion | null>(null);
   const [plan, setPlan] = useState<PlanItem[] | null>(null);
+  const { data: pantry = [] } = usePantry();
 
   const suggestMut = useMutation({
     mutationFn: async () => {
       if (!location) throw new Error("Pick a city first");
-      const s = await runSuggest({ data: { mealType, craving, servings } });
+      const s = await runSuggest({
+        data: {
+          mealType,
+          craving,
+          servings,
+          pantryItems: usePantryItems ? pantry.map((p) => p.name) : [],
+        },
+      });
       setSuggestion(s);
+
       // Match ingredients to products in this city
       type Product = { id: string; name: string; unit: string; category: string; image_url: string | null };
       const { data: productsData } = await supabase.from("products").select("*");
@@ -177,6 +189,21 @@ function PlanPage() {
               </button>
             ))}
           </div>
+
+          {pantry.length > 0 && (
+            <label className="mt-5 flex items-center gap-2.5 text-sm">
+              <input
+                type="checkbox"
+                checked={usePantryItems}
+                onChange={(e) => setUsePantryItems(e.target.checked)}
+                className="size-4 accent-[var(--color-brand,currentColor)]"
+              />
+              <span className="font-medium">Use what I have</span>
+              <span className="text-muted-foreground">({pantry.length} pantry items)</span>
+            </label>
+          )}
+
+
 
           <label className="mt-5 block text-xs font-bold uppercase tracking-widest text-muted-foreground">Craving (optional)</label>
           <input

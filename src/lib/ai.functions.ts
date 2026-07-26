@@ -5,6 +5,8 @@ const InputSchema = z.object({
   mealType: z.string().min(1).max(40),
   craving: z.string().max(200).optional().default(""),
   servings: z.number().int().min(1).max(12).default(2),
+  pantryItems: z.array(z.string().max(80)).max(40).optional().default([]),
+  pantryOnlyFocus: z.boolean().optional().default(false),
 });
 
 export type MealSuggestion = {
@@ -19,9 +21,16 @@ export const suggestMeal = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY missing");
 
+    const pantryLine = data.pantryItems.length
+      ? data.pantryOnlyFocus
+        ? ` The user has these ingredients at home that expire soon and MUST be used up: ${data.pantryItems.join(", ")}. Build the dish around them and keep extra purchases minimal and cheap.`
+        : ` The user already has these at home, prefer a dish that uses them: ${data.pantryItems.join(", ")}.`
+      : "";
+
     const prompt = `Suggest a specific ${data.mealType.toLowerCase()} for ${data.servings} people.${
       data.craving ? ` The user is craving: "${data.craving}".` : ""
-    } Return concise everyday supermarket ingredients (5-10 items). Use common product names a grocery store would carry (e.g. "milk", "eggs", "pasta", "olive oil", "tomatoes", "chicken breast", "oat milk", "bread", "coffee", "diapers"). Avoid brands.`;
+    }${pantryLine} Return concise everyday supermarket ingredients (5-10 items). Use common product names a grocery store would carry (e.g. "milk", "eggs", "pasta", "olive oil", "tomatoes", "chicken breast", "oat milk", "bread", "coffee", "diapers"). Avoid brands.`;
+
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
