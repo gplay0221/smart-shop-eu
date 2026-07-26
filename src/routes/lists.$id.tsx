@@ -215,7 +215,9 @@ function ListDetail() {
                           </button>
                           <div className="flex-1 min-w-0">
                             <p className={`font-medium truncate ${it.checked ? "line-through" : ""}`}>{it.products?.name}</p>
-                            <p className="text-xs text-muted-foreground">{it.products?.unit}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {it.products?.brand ? `${it.products.brand} · ` : ""}{it.products?.unit}
+                            </p>
                           </div>
                           <div className="flex items-center gap-1 border border-border rounded-md">
                             <button onClick={() => updateQty(it, it.quantity - 1)} className="size-7 hover:bg-secondary">−</button>
