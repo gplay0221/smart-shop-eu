@@ -123,7 +123,7 @@ function ListsPage() {
         ) : (
           <div className="grid gap-3">
             {lists?.map(l => {
-              const items = (l as any).list_items as { price_cents: number; quantity: number; currency: string; checked: boolean }[];
+              const items = ((l as any).list_items ?? []) as { price_cents: number; quantity: number; currency: string; checked: boolean }[];
               const total = items.reduce((s, i) => s + i.price_cents * i.quantity, 0);
               const done = items.filter(i => i.checked).length;
               const currency = items[0]?.currency ?? "EUR";
