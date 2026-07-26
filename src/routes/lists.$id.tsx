@@ -22,7 +22,7 @@ export const Route = createFileRoute("/lists/$id")({
 type Row = {
   id: string; list_id: string; product_id: string; store_id: string;
   quantity: number; price_cents: number; currency: string; checked: boolean;
-  products: { name: string; category: string; unit: string } | null;
+  products: { name: string; brand: string | null; category: string; unit: string } | null;
   stores: { chain: string; address: string } | null;
 };
 
