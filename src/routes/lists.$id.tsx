@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatPrice } from "@/lib/location";
 import { ArrowLeft, Trash2, Store as StoreIcon, MapPin, Play, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/lists/$id")({
   head: () => ({
