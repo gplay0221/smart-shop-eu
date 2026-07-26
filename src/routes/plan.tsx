@@ -190,6 +190,21 @@ function PlanPage() {
             ))}
           </div>
 
+          {pantry.length > 0 && (
+            <label className="mt-5 flex items-center gap-2.5 text-sm">
+              <input
+                type="checkbox"
+                checked={usePantryItems}
+                onChange={(e) => setUsePantryItems(e.target.checked)}
+                className="size-4 accent-[var(--color-brand,currentColor)]"
+              />
+              <span className="font-medium">Use what I have</span>
+              <span className="text-muted-foreground">({pantry.length} pantry items)</span>
+            </label>
+          )}
+
+
+
           <label className="mt-5 block text-xs font-bold uppercase tracking-widest text-muted-foreground">Craving (optional)</label>
           <input
             value={craving}
