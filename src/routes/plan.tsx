@@ -44,14 +44,24 @@ function PlanPage() {
   const [mealType, setMealType] = useState<string>("Dinner");
   const [craving, setCraving] = useState("");
   const [servings, setServings] = useState(2);
+  const [usePantryItems, setUsePantryItems] = useState(false);
   const [suggestion, setSuggestion] = useState<MealSuggestion | null>(null);
   const [plan, setPlan] = useState<PlanItem[] | null>(null);
+  const { data: pantry = [] } = usePantry();
 
   const suggestMut = useMutation({
     mutationFn: async () => {
       if (!location) throw new Error("Pick a city first");
-      const s = await runSuggest({ data: { mealType, craving, servings } });
+      const s = await runSuggest({
+        data: {
+          mealType,
+          craving,
+          servings,
+          pantryItems: usePantryItems ? pantry.map((p) => p.name) : [],
+        },
+      });
       setSuggestion(s);
+
       // Match ingredients to products in this city
       type Product = { id: string; name: string; unit: string; category: string; image_url: string | null };
       const { data: productsData } = await supabase.from("products").select("*");
