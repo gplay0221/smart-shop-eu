@@ -321,6 +321,8 @@ export type Database = {
         Row: {
           brand: string | null
           category: string
+          eco_alternative_id: string | null
+          eco_score: string | null
           id: string
           image_url: string | null
           name: string
@@ -329,6 +331,8 @@ export type Database = {
         Insert: {
           brand?: string | null
           category: string
+          eco_alternative_id?: string | null
+          eco_score?: string | null
           id?: string
           image_url?: string | null
           name: string
@@ -337,12 +341,22 @@ export type Database = {
         Update: {
           brand?: string | null
           category?: string
+          eco_alternative_id?: string | null
+          eco_score?: string | null
           id?: string
           image_url?: string | null
           name?: string
           unit?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_eco_alternative_id_fkey"
+            columns: ["eco_alternative_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shopping_lists: {
         Row: {
@@ -375,6 +389,45 @@ export type Database = {
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_assortment: {
+        Row: {
+          available: boolean
+          created_at: string
+          id: string
+          product_id: string
+          store_id: string
+        }
+        Insert: {
+          available?: boolean
+          created_at?: string
+          id?: string
+          product_id: string
+          store_id: string
+        }
+        Update: {
+          available?: boolean
+          created_at?: string
+          id?: string
+          product_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_assortment_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_assortment_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
