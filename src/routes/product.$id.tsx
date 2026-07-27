@@ -7,7 +7,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { formatPrice } from "@/lib/location";
 import { CITY_CENTERS, haversineKm, formatKm, mapsLink } from "@/lib/geo";
-import { ArrowLeft, MapPin, TrendingDown, Plus, Check, Bell, Navigation, ExternalLink } from "lucide-react";
+import { EcoBadge } from "@/components/eco-badge";
+import { ArrowLeft, MapPin, TrendingDown, Plus, Check, Bell, Navigation, ExternalLink, Leaf, PackageX } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
