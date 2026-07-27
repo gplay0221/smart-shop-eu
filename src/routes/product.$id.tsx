@@ -94,28 +94,59 @@ function ProductPage() {
     },
   });
 
+  const { data: assortment } = useQuery({
+    queryKey: ["assortment", id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("store_assortment")
+        .select("store_id, available")
+        .eq("product_id", id);
+      return data ?? [];
+    },
+  });
+
+  const { data: greener } = useQuery({
+    queryKey: ["eco-alt", product?.eco_alternative_id],
+    enabled: !!product?.eco_alternative_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("id, name, unit, brand, eco_score")
+        .eq("id", product!.eco_alternative_id!)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const unavailableStores = useMemo(
+    () => new Set((assortment ?? []).filter((a) => !a.available).map((a) => a.store_id)),
+    [assortment],
+  );
+
   const enriched = useMemo(() => {
     if (!comparison) return [];
     return comparison.map((p) => {
       const distanceKm = originCoords && p.store.lat != null && p.store.lng != null
         ? haversineKm(originCoords, { lat: p.store.lat, lng: p.store.lng })
         : null;
-      return { ...p, distanceKm };
+      return { ...p, distanceKm, available: !unavailableStores.has(p.store_id) };
     });
-  }, [comparison, originCoords]);
+  }, [comparison, originCoords, unavailableStores]);
 
   const sorted = useMemo(() => {
     const arr = [...enriched];
-    if (sortMode === "distance") {
-      arr.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
-    } else {
-      arr.sort((a, b) => a.price_cents - b.price_cents);
-    }
+    arr.sort((a, b) => {
+      if (a.available !== b.available) return a.available ? -1 : 1;
+      if (sortMode === "distance") return (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
+      return a.price_cents - b.price_cents;
+    });
     return arr;
   }, [enriched, sortMode]);
 
-  const cheapest = comparison?.length ? [...comparison].sort((a, b) => a.price_cents - b.price_cents)[0] : null;
-  const maxPrice = comparison?.length ? Math.max(...comparison.map((p) => p.price_cents)) : 0;
+  const inStock = enriched.filter((p) => p.available);
+  const outOfStockCount = enriched.length - inStock.length;
+  const cheapest = inStock.length ? [...inStock].sort((a, b) => a.price_cents - b.price_cents)[0] : null;
+  const maxPrice = inStock.length ? Math.max(...inStock.map((p) => p.price_cents)) : 0;
 
   async function addToList(listId: string, storeId: string, priceCents: number, currency: string) {
     setAdding(storeId);
