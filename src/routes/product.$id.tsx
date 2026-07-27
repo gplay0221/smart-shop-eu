@@ -340,14 +340,31 @@ function ProductPage() {
                   </div>
                 </div>
 
+                {outOfStockCount > 0 && (
+                  <p className="mb-3 text-xs text-muted-foreground flex items-center gap-1.5">
+                    <PackageX className="size-3.5" />
+                    Not stocked at {outOfStockCount} store{outOfStockCount === 1 ? "" : "s"} in {location.cityName}.
+                  </p>
+                )}
+
                 <div className="space-y-3">
                   {sorted.map((p) => (
-                    <div key={p.id} className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+                    <div
+                      key={p.id}
+                      className={`flex items-center gap-4 rounded-xl border border-border bg-card p-4 ${p.available ? "" : "opacity-60"}`}
+                    >
                       <div className="size-10 rounded-lg bg-brand-soft grid place-items-center text-[10px] font-bold text-brand">
                         {p.store.chain.slice(0, 4).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold">{p.store.chain}</p>
+                        <p className="font-semibold flex items-center gap-2">
+                          {p.store.chain}
+                          {!p.available && (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                              <PackageX className="size-2.5" /> Not stocked
+                            </span>
+                          )}
+                        </p>
                         <p className="text-xs text-muted-foreground truncate">{p.store.address}</p>
                         {p.distanceKm != null && (
                           <p className="text-[11px] text-brand font-medium mt-0.5 flex items-center gap-1">
