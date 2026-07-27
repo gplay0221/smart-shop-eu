@@ -7,7 +7,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { formatPrice } from "@/lib/location";
 import { CITY_CENTERS, haversineKm, formatKm, mapsLink } from "@/lib/geo";
-import { ArrowLeft, MapPin, TrendingDown, Plus, Check, Bell, Navigation, ExternalLink } from "lucide-react";
+import { EcoBadge } from "@/components/eco-badge";
+import { ArrowLeft, MapPin, TrendingDown, Plus, Check, Bell, Navigation, ExternalLink, Leaf, PackageX } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -93,28 +94,59 @@ function ProductPage() {
     },
   });
 
+  const { data: assortment } = useQuery({
+    queryKey: ["assortment", id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("store_assortment")
+        .select("store_id, available")
+        .eq("product_id", id);
+      return data ?? [];
+    },
+  });
+
+  const { data: greener } = useQuery({
+    queryKey: ["eco-alt", product?.eco_alternative_id],
+    enabled: !!product?.eco_alternative_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("id, name, unit, brand, eco_score")
+        .eq("id", product!.eco_alternative_id!)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const unavailableStores = useMemo(
+    () => new Set((assortment ?? []).filter((a) => !a.available).map((a) => a.store_id)),
+    [assortment],
+  );
+
   const enriched = useMemo(() => {
     if (!comparison) return [];
     return comparison.map((p) => {
       const distanceKm = originCoords && p.store.lat != null && p.store.lng != null
         ? haversineKm(originCoords, { lat: p.store.lat, lng: p.store.lng })
         : null;
-      return { ...p, distanceKm };
+      return { ...p, distanceKm, available: !unavailableStores.has(p.store_id) };
     });
-  }, [comparison, originCoords]);
+  }, [comparison, originCoords, unavailableStores]);
 
   const sorted = useMemo(() => {
     const arr = [...enriched];
-    if (sortMode === "distance") {
-      arr.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
-    } else {
-      arr.sort((a, b) => a.price_cents - b.price_cents);
-    }
+    arr.sort((a, b) => {
+      if (a.available !== b.available) return a.available ? -1 : 1;
+      if (sortMode === "distance") return (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
+      return a.price_cents - b.price_cents;
+    });
     return arr;
   }, [enriched, sortMode]);
 
-  const cheapest = comparison?.length ? [...comparison].sort((a, b) => a.price_cents - b.price_cents)[0] : null;
-  const maxPrice = comparison?.length ? Math.max(...comparison.map((p) => p.price_cents)) : 0;
+  const inStock = enriched.filter((p) => p.available);
+  const outOfStockCount = enriched.length - inStock.length;
+  const cheapest = inStock.length ? [...inStock].sort((a, b) => a.price_cents - b.price_cents)[0] : null;
+  const maxPrice = inStock.length ? Math.max(...inStock.map((p) => p.price_cents)) : 0;
 
   async function addToList(listId: string, storeId: string, priceCents: number, currency: string) {
     setAdding(storeId);
@@ -186,7 +218,10 @@ function ProductPage() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{product.category}</p>
                 <h1 className="font-display text-3xl sm:text-4xl font-bold mt-1">{product.name}</h1>
-                <p className="text-muted-foreground">{product.unit}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-muted-foreground">{product.unit}</p>
+                  <EcoBadge score={product.eco_score} />
+                </div>
               </div>
               {user && location && (
                 <button
@@ -204,6 +239,28 @@ function ProductPage() {
                 </button>
               )}
             </div>
+
+            {greener && (
+              <div className="mb-6 rounded-xl border border-savings/30 bg-savings/10 p-4 flex items-center gap-3 flex-wrap">
+                <Leaf className="size-5 text-savings shrink-0" />
+                <div className="flex-1 min-w-[12rem]">
+                  <p className="text-sm font-semibold">Swap for greener?</p>
+                  <p className="text-xs text-muted-foreground">
+                    {greener.name}{greener.brand ? ` · ${greener.brand}` : ""} · {greener.unit} has a better sustainability score.
+                  </p>
+                </div>
+                <EcoBadge score={greener.eco_score} />
+                <Link
+                  to="/product/$id"
+                  params={{ id: greener.id }}
+                  className="rounded-lg bg-savings px-3.5 py-2 text-sm font-semibold text-background hover:opacity-90"
+                >
+                  Compare it
+                </Link>
+              </div>
+            )}
+
+
 
             {alertOpen && (
               <div className="mb-6 rounded-xl border border-border bg-card p-4 flex items-center gap-3 flex-wrap">
@@ -283,14 +340,31 @@ function ProductPage() {
                   </div>
                 </div>
 
+                {outOfStockCount > 0 && (
+                  <p className="mb-3 text-xs text-muted-foreground flex items-center gap-1.5">
+                    <PackageX className="size-3.5" />
+                    Not stocked at {outOfStockCount} store{outOfStockCount === 1 ? "" : "s"} in {location.cityName}.
+                  </p>
+                )}
+
                 <div className="space-y-3">
                   {sorted.map((p) => (
-                    <div key={p.id} className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+                    <div
+                      key={p.id}
+                      className={`flex items-center gap-4 rounded-xl border border-border bg-card p-4 ${p.available ? "" : "opacity-60"}`}
+                    >
                       <div className="size-10 rounded-lg bg-brand-soft grid place-items-center text-[10px] font-bold text-brand">
                         {p.store.chain.slice(0, 4).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold">{p.store.chain}</p>
+                        <p className="font-semibold flex items-center gap-2">
+                          {p.store.chain}
+                          {!p.available && (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                              <PackageX className="size-2.5" /> Not stocked
+                            </span>
+                          )}
+                        </p>
                         <p className="text-xs text-muted-foreground truncate">{p.store.address}</p>
                         {p.distanceKm != null && (
                           <p className="text-[11px] text-brand font-medium mt-0.5 flex items-center gap-1">
@@ -317,9 +391,9 @@ function ProductPage() {
                         )}
                         <button
                           onClick={() => quickAdd(p.store.id, p.price_cents, p.currency)}
-                          disabled={adding === p.store.id}
+                          disabled={adding === p.store.id || !p.available}
                           className="rounded-md border border-border p-2 hover:bg-secondary disabled:opacity-50"
-                          title="Add to list"
+                          title={p.available ? "Add to list" : "Not stocked at this store"}
                         >
                           <Plus className="size-4" />
                         </button>
