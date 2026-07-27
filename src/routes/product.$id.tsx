@@ -218,7 +218,10 @@ function ProductPage() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{product.category}</p>
                 <h1 className="font-display text-3xl sm:text-4xl font-bold mt-1">{product.name}</h1>
-                <p className="text-muted-foreground">{product.unit}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-muted-foreground">{product.unit}</p>
+                  <EcoBadge score={product.eco_score} />
+                </div>
               </div>
               {user && location && (
                 <button
