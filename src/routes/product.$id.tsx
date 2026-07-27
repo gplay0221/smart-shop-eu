@@ -391,9 +391,9 @@ function ProductPage() {
                         )}
                         <button
                           onClick={() => quickAdd(p.store.id, p.price_cents, p.currency)}
-                          disabled={adding === p.store.id}
+                          disabled={adding === p.store.id || !p.available}
                           className="rounded-md border border-border p-2 hover:bg-secondary disabled:opacity-50"
-                          title="Add to list"
+                          title={p.available ? "Add to list" : "Not stocked at this store"}
                         >
                           <Plus className="size-4" />
                         </button>
