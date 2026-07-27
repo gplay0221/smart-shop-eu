@@ -240,6 +240,28 @@ function ProductPage() {
               )}
             </div>
 
+            {greener && (
+              <div className="mb-6 rounded-xl border border-savings/30 bg-savings/10 p-4 flex items-center gap-3 flex-wrap">
+                <Leaf className="size-5 text-savings shrink-0" />
+                <div className="flex-1 min-w-[12rem]">
+                  <p className="text-sm font-semibold">Swap for greener?</p>
+                  <p className="text-xs text-muted-foreground">
+                    {greener.name}{greener.brand ? ` · ${greener.brand}` : ""} · {greener.unit} has a better sustainability score.
+                  </p>
+                </div>
+                <EcoBadge score={greener.eco_score} />
+                <Link
+                  to="/product/$id"
+                  params={{ id: greener.id }}
+                  className="rounded-lg bg-savings px-3.5 py-2 text-sm font-semibold text-background hover:opacity-90"
+                >
+                  Compare it
+                </Link>
+              </div>
+            )}
+
+
+
             {alertOpen && (
               <div className="mb-6 rounded-xl border border-border bg-card p-4 flex items-center gap-3 flex-wrap">
                 <label className="text-sm font-medium">Notify me when it drops below</label>
