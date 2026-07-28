@@ -9,9 +9,10 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { formatPrice } from "@/lib/location";
 import { CITY_CENTERS, formatKm, mapsLink } from "@/lib/geo";
 import { optimizeRoute, optimizeCart, type CartItem, type PriceIndex } from "@/lib/smart-cart";
+import { ShareListDialog } from "@/components/share-list-dialog";
 import {
   ArrowLeft, Trash2, Store as StoreIcon, MapPin, Play, ChevronDown,
-  Route as RouteIcon, Sparkles, Navigation, ExternalLink,
+  Route as RouteIcon, Sparkles, Navigation, ExternalLink, Users,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -45,6 +46,7 @@ function ListDetail() {
   const [activeStore, setActiveStore] = useState<string | null>(null);
   const [routeMode, setRouteMode] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => { if (ready && !user) navigate({ to: "/auth" }); }, [ready, user, navigate]);
 
@@ -72,6 +74,23 @@ function ListDetail() {
     },
   });
 
+  // Live sync for shared household lists
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`list-items-${id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "list_items", filter: `list_id=eq.${id}` },
+        () => qc.invalidateQueries({ queryKey: ["list-items", id] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, user, qc]);
+
+  const isOwner = !!user && list?.user_id === user.id;
   const cityId = list?.city_id ?? location?.cityId ?? null;
   const originCoords = coords ?? (location ? CITY_CENTERS[location.cityName] ?? null : null);
 
@@ -249,6 +268,12 @@ function ListDetail() {
               <RouteIcon className="size-4" /> {routeMode ? "Route optimized" : "Optimize route"}
             </button>
             <button
+              onClick={() => setShareOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2 text-sm font-semibold hover:border-brand"
+            >
+              <Users className="size-4" /> Share
+            </button>
+            <button
               onClick={optimizeSpend}
               disabled={optimizing}
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2 text-sm font-semibold hover:border-brand disabled:opacity-50"
@@ -385,6 +410,7 @@ function ListDetail() {
           </div>
         )}
       </main>
+      {shareOpen && <ShareListDialog listId={id} isOwner={isOwner} onClose={() => setShareOpen(false)} />}
     </div>
   );
 }

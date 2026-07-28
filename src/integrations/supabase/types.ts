@@ -119,6 +119,38 @@ export type Database = {
           },
         ]
       }
+      list_members: {
+        Row: {
+          created_at: string
+          id: string
+          list_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          list_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          list_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_members_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "shopping_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           alert_id: string | null
@@ -278,6 +310,57 @@ export type Database = {
           },
         ]
       }
+      price_reports: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          price_cents: number
+          product_id: string
+          status: string
+          store_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          price_cents: number
+          product_id: string
+          status?: string
+          store_id: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          price_cents?: number
+          product_id?: string
+          status?: string
+          store_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_reports_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_reports_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prices: {
         Row: {
           currency: string
@@ -319,6 +402,7 @@ export type Database = {
       }
       products: {
         Row: {
+          barcode: string | null
           brand: string | null
           category: string
           eco_alternative_id: string | null
@@ -329,6 +413,7 @@ export type Database = {
           unit: string
         }
         Insert: {
+          barcode?: string | null
           brand?: string | null
           category: string
           eco_alternative_id?: string | null
@@ -339,6 +424,7 @@ export type Database = {
           unit?: string
         }
         Update: {
+          barcode?: string | null
           brand?: string | null
           category?: string
           eco_alternative_id?: string | null
@@ -357,6 +443,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      redemptions: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          points_spent: number
+          reward: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          points_spent: number
+          reward: string
+          user_id?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          points_spent?: number
+          reward?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       shopping_lists: {
         Row: {
@@ -467,6 +580,24 @@ export type Database = {
           },
         ]
       }
+      user_points: {
+        Row: {
+          points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           created_at: string
@@ -502,7 +633,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_list_member: {
+        Args: { _list_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_list_owner: {
+        Args: { _list_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

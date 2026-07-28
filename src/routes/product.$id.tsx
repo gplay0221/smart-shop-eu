@@ -8,7 +8,8 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { formatPrice } from "@/lib/location";
 import { CITY_CENTERS, haversineKm, formatKm, mapsLink } from "@/lib/geo";
 import { EcoBadge } from "@/components/eco-badge";
-import { ArrowLeft, MapPin, TrendingDown, Plus, Check, Bell, Navigation, ExternalLink, Leaf, PackageX } from "lucide-react";
+import { ReportPriceDialog } from "@/components/report-price-dialog";
+import { ArrowLeft, MapPin, TrendingDown, Plus, Check, Bell, Navigation, ExternalLink, Leaf, PackageX, Flag } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -44,6 +45,7 @@ function ProductPage() {
   const [sortMode, setSortMode] = useState<"price" | "distance">("price");
   const [alertOpen, setAlertOpen] = useState(false);
   const [targetEuros, setTargetEuros] = useState("");
+  const [reporting, setReporting] = useState<{ storeId: string; storeName: string; priceCents: number; currency: string } | null>(null);
 
   const originCoords = coords ?? (location ? CITY_CENTERS[location.cityName] ?? null : null);
 
@@ -389,6 +391,15 @@ function ProductPage() {
                             <ExternalLink className="size-4" />
                           </a>
                         )}
+                        {user && (
+                          <button
+                            onClick={() => setReporting({ storeId: p.store.id, storeName: p.store.chain, priceCents: p.price_cents, currency: p.currency })}
+                            className="rounded-md border border-border p-2 hover:bg-secondary"
+                            title="Report a different price"
+                          >
+                            <Flag className="size-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => quickAdd(p.store.id, p.price_cents, p.currency)}
                           disabled={adding === p.store.id || !p.available}
@@ -406,6 +417,16 @@ function ProductPage() {
           </>
         )}
       </main>
+      {reporting && (
+        <ReportPriceDialog
+          productId={id}
+          storeId={reporting.storeId}
+          storeName={reporting.storeName}
+          currentCents={reporting.priceCents}
+          currency={reporting.currency}
+          onClose={() => setReporting(null)}
+        />
+      )}
     </div>
   );
 }
