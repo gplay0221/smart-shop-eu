@@ -361,6 +361,90 @@ export type Database = {
           },
         ]
       }
+      price_sources: {
+        Row: {
+          active: boolean
+          catalog_url: string | null
+          chain: string
+          country_code: string
+          created_at: string
+          currency: string
+          deals_url: string | null
+          id: string
+          item_selector: string
+          name_selector: string
+          price_selector: string
+          unit_selector: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          catalog_url?: string | null
+          chain: string
+          country_code?: string
+          created_at?: string
+          currency?: string
+          deals_url?: string | null
+          id?: string
+          item_selector: string
+          name_selector: string
+          price_selector: string
+          unit_selector?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          catalog_url?: string | null
+          chain?: string
+          country_code?: string
+          created_at?: string
+          currency?: string
+          deals_url?: string | null
+          id?: string
+          item_selector?: string
+          name_selector?: string
+          price_selector?: string
+          unit_selector?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      price_sync_runs: {
+        Row: {
+          chain: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          offers_found: number
+          offers_upserted: number
+          prices_updated: number
+          started_at: string
+          status: string
+        }
+        Insert: {
+          chain: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          offers_found?: number
+          offers_upserted?: number
+          prices_updated?: number
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          chain?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          offers_found?: number
+          offers_upserted?: number
+          prices_updated?: number
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       prices: {
         Row: {
           currency: string
@@ -470,6 +554,62 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      scraped_offers: {
+        Row: {
+          chain: string
+          country_code: string
+          created_at: string
+          currency: string
+          id: string
+          kind: string
+          name: string
+          name_norm: string
+          price_cents: number
+          product_id: string | null
+          scraped_at: string
+          source_url: string | null
+          unit: string | null
+        }
+        Insert: {
+          chain: string
+          country_code?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: string
+          name: string
+          name_norm: string
+          price_cents: number
+          product_id?: string | null
+          scraped_at?: string
+          source_url?: string | null
+          unit?: string | null
+        }
+        Update: {
+          chain?: string
+          country_code?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: string
+          name?: string
+          name_norm?: string
+          price_cents?: number
+          product_id?: string | null
+          scraped_at?: string
+          source_url?: string | null
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scraped_offers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shopping_lists: {
         Row: {
