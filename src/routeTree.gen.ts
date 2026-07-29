@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListsIndexRouteImport } from './routes/lists.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as ListsIdRouteImport } from './routes/lists.$id'
+import { Route as ApiPublicHooksSyncDePricesRouteImport } from './routes/api/public/hooks/sync-de-prices'
 import { Route as ApiPublicHooksCheckAlertsRouteImport } from './routes/api/public/hooks/check-alerts'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -83,6 +84,12 @@ const ListsIdRoute = ListsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ListsRoute,
 } as any)
+const ApiPublicHooksSyncDePricesRoute =
+  ApiPublicHooksSyncDePricesRouteImport.update({
+    id: '/api/public/hooks/sync-de-prices',
+    path: '/api/public/hooks/sync-de-prices',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksCheckAlertsRoute =
   ApiPublicHooksCheckAlertsRouteImport.update({
     id: '/api/public/hooks/check-alerts',
@@ -104,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/product/$id': typeof ProductIdRoute
   '/lists/': typeof ListsIndexRoute
   '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
+  '/api/public/hooks/sync-de-prices': typeof ApiPublicHooksSyncDePricesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +126,7 @@ export interface FileRoutesByTo {
   '/product/$id': typeof ProductIdRoute
   '/lists': typeof ListsIndexRoute
   '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
+  '/api/public/hooks/sync-de-prices': typeof ApiPublicHooksSyncDePricesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +143,7 @@ export interface FileRoutesById {
   '/product/$id': typeof ProductIdRoute
   '/lists/': typeof ListsIndexRoute
   '/api/public/hooks/check-alerts': typeof ApiPublicHooksCheckAlertsRoute
+  '/api/public/hooks/sync-de-prices': typeof ApiPublicHooksSyncDePricesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/lists/'
     | '/api/public/hooks/check-alerts'
+    | '/api/public/hooks/sync-de-prices'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/lists'
     | '/api/public/hooks/check-alerts'
+    | '/api/public/hooks/sync-de-prices'
   id:
     | '__root__'
     | '/'
@@ -180,6 +192,7 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/lists/'
     | '/api/public/hooks/check-alerts'
+    | '/api/public/hooks/sync-de-prices'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -194,6 +207,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProductIdRoute: typeof ProductIdRoute
   ApiPublicHooksCheckAlertsRoute: typeof ApiPublicHooksCheckAlertsRoute
+  ApiPublicHooksSyncDePricesRoute: typeof ApiPublicHooksSyncDePricesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -282,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListsIdRouteImport
       parentRoute: typeof ListsRoute
     }
+    '/api/public/hooks/sync-de-prices': {
+      id: '/api/public/hooks/sync-de-prices'
+      path: '/api/public/hooks/sync-de-prices'
+      fullPath: '/api/public/hooks/sync-de-prices'
+      preLoaderRoute: typeof ApiPublicHooksSyncDePricesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/check-alerts': {
       id: '/api/public/hooks/check-alerts'
       path: '/api/public/hooks/check-alerts'
@@ -316,6 +337,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProductIdRoute: ProductIdRoute,
   ApiPublicHooksCheckAlertsRoute: ApiPublicHooksCheckAlertsRoute,
+  ApiPublicHooksSyncDePricesRoute: ApiPublicHooksSyncDePricesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
