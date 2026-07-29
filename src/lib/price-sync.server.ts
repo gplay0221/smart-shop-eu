@@ -48,8 +48,19 @@ export function parsePriceCents(raw: string | null | undefined): number | null {
   return Math.round(value * 100);
 }
 
+/**
+ * German chains sit behind bot protection (Akamai/Cloudflare) and reject
+ * datacenter IPs with 403. When SCRAPER_PROXY_URL is configured (a template
+ * containing {url}, e.g. a ScraperAPI/ScrapingBee/Browserless endpoint) we
+ * fetch through it; otherwise we go direct and surface the block clearly.
+ */
 async function fetchHtml(url: string) {
-  const res = await fetch(url, {
+  const template = process.env.SCRAPER_PROXY_URL;
+  const target = template
+    ? template.replace("{url}", encodeURIComponent(url))
+    : url;
+
+  const res = await fetch(target, {
     headers: {
       "user-agent": UA,
       accept: "text/html,application/xhtml+xml",
@@ -57,7 +68,13 @@ async function fetchHtml(url: string) {
     },
     redirect: "follow",
   });
+  if (res.status === 403 || res.status === 429) {
+    throw new Error(
+      `blocked (HTTP ${res.status}) by ${new URL(url).hostname}${template ? "" : " — no scraping proxy configured"}`,
+    );
+  }
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+
   return await res.text();
 }
 
