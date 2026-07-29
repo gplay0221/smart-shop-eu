@@ -38,6 +38,10 @@ export function SiteHeader() {
             <Link to="/scan" className="hover:text-brand transition-colors [&.active]:text-foreground">
               Scan
             </Link>
+            <Link to="/live" className="hover:text-brand transition-colors [&.active]:text-foreground">
+              Live DE
+            </Link>
+
             <Link to="/rewards" className="hover:text-brand transition-colors [&.active]:text-foreground">
               Rewards
             </Link>
