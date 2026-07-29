@@ -142,6 +142,19 @@ function LivePrices() {
           </button>
         </div>
 
+        {runs?.some((r) => r.error?.includes("blocked")) && (
+          <div className="mt-6 rounded-2xl border border-accent/40 bg-accent/10 p-4 text-sm">
+            <p className="font-semibold flex items-center gap-2">
+              <AlertTriangle className="size-4 text-accent" /> Chains are blocking direct requests
+            </p>
+            <p className="text-muted-foreground mt-1">
+              Aldi, Lidl, Kaufland and REWE serve their pages behind bot protection, so requests from
+              our servers get a 403. The sync engine is live and selector-driven — it starts pulling
+              real prices as soon as a scraping proxy key is added, without any code change.
+            </p>
+          </div>
+        )}
+
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(sources ?? []).map((s) => {
             const last = runs?.find((r) => r.chain === s.chain);
