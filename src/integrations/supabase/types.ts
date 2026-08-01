@@ -611,6 +611,27 @@ export type Database = {
           },
         ]
       }
+      search_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expires_at: string
+          response: Json
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expires_at: string
+          response: Json
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          response?: Json
+        }
+        Relationships: []
+      }
       shopping_lists: {
         Row: {
           city_id: string | null
