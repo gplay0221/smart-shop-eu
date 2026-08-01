@@ -6,6 +6,7 @@ import { SiteHeader, LocationPicker } from "@/components/site-header";
 import { useLocation } from "@/hooks/use-location";
 import { formatPrice } from "@/lib/location";
 import { Search, MapPin } from "lucide-react";
+import { LivePrices } from "@/components/live-prices";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -116,6 +117,9 @@ function Home() {
             </button>
           )}
         </section>
+
+        {/* Live retailer prices for the current search */}
+        <LivePrices query={q} />
 
         {/* Product Grid */}
         {!location && ready ? (
