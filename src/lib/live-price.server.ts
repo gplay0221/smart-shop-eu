@@ -302,7 +302,7 @@ export async function searchLivePrices(input: {
 
   await supabaseAdmin.from("search_cache").upsert({
     cache_key: cacheKey,
-    response: result as unknown as Record<string, unknown>,
+    response: result as unknown as never,
     expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
   });
 
