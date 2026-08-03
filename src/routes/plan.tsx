@@ -231,14 +231,46 @@ function PlanPage() {
             />
           </div>
 
-          <button
-            onClick={() => suggestMut.mutate()}
-            disabled={!location || suggestMut.isPending}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-3 text-brand-foreground font-semibold hover:opacity-90 disabled:opacity-50"
-          >
-            {suggestMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <ChefHat className="size-4" />}
-            {suggestMut.isPending ? "Cooking up ideas…" : "Suggest a meal & price it"}
-          </button>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button
+              onClick={() => suggestMut.mutate(false)}
+              disabled={!location || suggestMut.isPending}
+              className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-3 text-brand-foreground font-semibold hover:opacity-90 disabled:opacity-50"
+            >
+              {suggestMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <ChefHat className="size-4" />}
+              {suggestMut.isPending ? "Cooking up ideas…" : "Suggest a meal & price it"}
+            </button>
+            {deals.length > 0 && (
+              <button
+                onClick={() => suggestMut.mutate(true)}
+                disabled={!location || suggestMut.isPending}
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 font-semibold hover:border-brand disabled:opacity-50"
+              >
+                <Tag className="size-4 text-brand" /> Cook today's discounts
+              </button>
+            )}
+          </div>
+
+          {deals.length > 0 && (
+            <div className="mt-5">
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                On offer in {location?.cityName} right now
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {deals.slice(0, 8).map((d) => (
+                  <span
+                    key={d.product.id}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs"
+                  >
+                    <span className="font-medium">{d.product.name}</span>
+                    <span className="font-bold text-brand">−{d.discount_pct}%</span>
+                    <span className="text-muted-foreground">{d.store.chain}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {!location && <p className="mt-3 text-xs text-muted-foreground flex items-center gap-1"><MapPin className="size-3" /> Pick a city in the header first.</p>}
         </div>
 
