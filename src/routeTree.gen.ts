@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as RewardsRouteImport } from './routes/rewards'
+import { Route as ReceiptRouteImport } from './routes/receipt'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as PantryRouteImport } from './routes/pantry'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ListsRouteImport } from './routes/lists'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListsIndexRouteImport } from './routes/lists.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -37,6 +39,11 @@ const ScanRoute = ScanRouteImport.update({
 const RewardsRoute = RewardsRouteImport.update({
   id: '/rewards',
   path: '/rewards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReceiptRoute = ReceiptRouteImport.update({
+  id: '/receipt',
+  path: '/receipt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanRoute = PlanRouteImport.update({
@@ -62,6 +69,11 @@ const ListsRoute = ListsRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -99,11 +111,13 @@ const ApiPublicHooksCheckAlertsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
+  '/receipt': typeof ReceiptRoute
   '/rewards': typeof RewardsRoute
   '/scan': typeof ScanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -115,10 +129,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
+  '/receipt': typeof ReceiptRoute
   '/rewards': typeof RewardsRoute
   '/scan': typeof ScanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -131,11 +147,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
+  '/receipt': typeof ReceiptRoute
   '/rewards': typeof RewardsRoute
   '/scan': typeof ScanRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -149,11 +167,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/alerts'
     | '/auth'
     | '/lists'
     | '/onboarding'
     | '/pantry'
     | '/plan'
+    | '/receipt'
     | '/rewards'
     | '/scan'
     | '/sitemap.xml'
@@ -165,10 +185,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/alerts'
     | '/auth'
     | '/onboarding'
     | '/pantry'
     | '/plan'
+    | '/receipt'
     | '/rewards'
     | '/scan'
     | '/sitemap.xml'
@@ -180,11 +202,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/alerts'
     | '/auth'
     | '/lists'
     | '/onboarding'
     | '/pantry'
     | '/plan'
+    | '/receipt'
     | '/rewards'
     | '/scan'
     | '/sitemap.xml'
@@ -197,11 +221,13 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
   AuthRoute: typeof AuthRoute
   ListsRoute: typeof ListsRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
   PantryRoute: typeof PantryRoute
   PlanRoute: typeof PlanRoute
+  ReceiptRoute: typeof ReceiptRoute
   RewardsRoute: typeof RewardsRoute
   ScanRoute: typeof ScanRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -231,6 +257,13 @@ declare module '@tanstack/react-router' {
       path: '/rewards'
       fullPath: '/rewards'
       preLoaderRoute: typeof RewardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/receipt': {
+      id: '/receipt'
+      path: '/receipt'
+      fullPath: '/receipt'
+      preLoaderRoute: typeof ReceiptRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plan': {
@@ -266,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -327,11 +367,13 @@ const ListsRouteWithChildren = ListsRoute._addFileChildren(ListsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
   AuthRoute: AuthRoute,
   ListsRoute: ListsRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
   PantryRoute: PantryRoute,
   PlanRoute: PlanRoute,
+  ReceiptRoute: ReceiptRoute,
   RewardsRoute: RewardsRoute,
   ScanRoute: ScanRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
