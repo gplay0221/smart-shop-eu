@@ -7,7 +7,9 @@ const InputSchema = z.object({
   servings: z.number().int().min(1).max(12).default(2),
   pantryItems: z.array(z.string().max(80)).max(40).optional().default([]),
   pantryOnlyFocus: z.boolean().optional().default(false),
+  dealItems: z.array(z.string().max(80)).max(30).optional().default([]),
 });
+
 
 export type MealSuggestion = {
   dish: string;
