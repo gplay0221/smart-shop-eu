@@ -28,10 +28,14 @@ export const suggestMeal = createServerFn({ method: "POST" })
         ? ` The user has these ingredients at home that expire soon and MUST be used up: ${data.pantryItems.join(", ")}. Build the dish around them and keep extra purchases minimal and cheap.`
         : ` The user already has these at home, prefer a dish that uses them: ${data.pantryItems.join(", ")}.`
       : "";
+    const dealLine = data.dealItems.length
+      ? ` These items are heavily discounted in local supermarkets today and should form the core of the dish: ${data.dealItems.join(", ")}.`
+      : "";
 
     const prompt = `Suggest a specific ${data.mealType.toLowerCase()} for ${data.servings} people.${
       data.craving ? ` The user is craving: "${data.craving}".` : ""
-    }${pantryLine} Return concise everyday supermarket ingredients (5-10 items). Use common product names a grocery store would carry (e.g. "milk", "eggs", "pasta", "olive oil", "tomatoes", "chicken breast", "oat milk", "bread", "coffee", "diapers"). Avoid brands.`;
+    }${pantryLine}${dealLine} Return concise everyday supermarket ingredients (5-10 items). Use common product names a grocery store would carry (e.g. "milk", "eggs", "pasta", "olive oil", "tomatoes", "chicken breast", "oat milk", "bread", "coffee", "diapers"). Avoid brands.`;
+
 
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
