@@ -11,7 +11,7 @@ import { suggestMeal, type MealSuggestion } from "@/lib/ai.functions";
 import { findDeals } from "@/lib/deals";
 
 import { formatPrice } from "@/lib/location";
-import { Sparkles, ChefHat, ShoppingBasket, Loader2, Store as StoreIcon, MapPin } from "lucide-react";
+import { Sparkles, ChefHat, ShoppingBasket, Loader2, Store as StoreIcon, MapPin, Tag } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/plan")({
