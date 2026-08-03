@@ -17,6 +17,7 @@ import { Route as PantryRouteImport } from './routes/pantry'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ListsRouteImport } from './routes/lists'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListsIndexRouteImport } from './routes/lists.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -64,6 +65,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -99,6 +105,7 @@ const ApiPublicHooksCheckAlertsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
@@ -131,6 +139,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/alerts'
     | '/auth'
     | '/lists'
     | '/onboarding'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/alerts'
     | '/auth'
     | '/onboarding'
     | '/pantry'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/alerts'
     | '/auth'
     | '/lists'
     | '/onboarding'
@@ -197,6 +209,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
   AuthRoute: typeof AuthRoute
   ListsRoute: typeof ListsRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
@@ -268,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -327,6 +347,7 @@ const ListsRouteWithChildren = ListsRoute._addFileChildren(ListsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
   AuthRoute: AuthRoute,
   ListsRoute: ListsRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
