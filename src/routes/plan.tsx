@@ -49,8 +49,14 @@ function PlanPage() {
   const [plan, setPlan] = useState<PlanItem[] | null>(null);
   const { data: pantry = [] } = usePantry();
 
+  const { data: deals = [] } = useQuery({
+    queryKey: ["deals", location?.cityId],
+    enabled: !!location,
+    queryFn: () => findDeals(location!.cityId),
+  });
+
   const suggestMut = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (dealMode: boolean = false) => {
       if (!location) throw new Error("Pick a city first");
       const s = await runSuggest({
         data: {
@@ -58,8 +64,10 @@ function PlanPage() {
           craving,
           servings,
           pantryItems: usePantryItems ? pantry.map((p) => p.name) : [],
+          dealItems: dealMode ? deals.map((d) => d.product.name) : [],
         },
       });
+
       setSuggestion(s);
 
       // Match ingredients to products in this city
