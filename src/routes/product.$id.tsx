@@ -9,6 +9,8 @@ import { formatPrice } from "@/lib/location";
 import { CITY_CENTERS, haversineKm, formatKm, mapsLink } from "@/lib/geo";
 import { EcoBadge } from "@/components/eco-badge";
 import { ReportPriceDialog } from "@/components/report-price-dialog";
+import { PriceForecast } from "@/components/price-forecast";
+
 import { ArrowLeft, MapPin, TrendingDown, Plus, Check, Bell, Navigation, ExternalLink, Leaf, PackageX, Flag } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -262,6 +264,20 @@ function ProductPage() {
               </div>
             )}
 
+            {comparison && comparison.length > 0 && (
+              <div className="mb-6">
+                <PriceForecast
+                  product={product.name}
+                  category={product.category}
+                  unit={product.unit}
+                  currentCents={Math.min(...comparison.map((c) => c.price_cents))}
+                  currency={comparison[0].currency}
+                  country={location?.countryName}
+                  city={location?.cityName}
+                  recentCents={comparison.map((c) => c.price_cents)}
+                />
+              </div>
+            )}
 
 
             {alertOpen && (

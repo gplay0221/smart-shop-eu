@@ -84,10 +84,45 @@ function ReceiptPage() {
     },
   });
 
+  const { data: appPrices = [] } = useQuery({
+    queryKey: ["store-prices", storeId],
+    enabled: !!storeId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("prices")
+        .select("product_id,price_cents,currency")
+        .eq("store_id", storeId);
+      return data ?? [];
+    },
+  });
+
+  const priceMap = useMemo(
+    () => new Map(appPrices.map((p) => [p.product_id, p.price_cents])),
+    [appPrices],
+  );
+
+  function verify(row: Row) {
+    if (!row.productId) return null;
+    const expected = priceMap.get(row.productId);
+    if (expected === undefined) return { kind: "new" as const, delta: 0, expected: 0 };
+    const paid = Math.round(row.price_cents / Math.max(1, row.quantity));
+    const delta = paid - expected;
+    const pct = expected ? Math.abs(delta) / expected : 1;
+    if (pct <= 0.03) return { kind: "match" as const, delta, expected };
+    return { kind: delta > 0 ? ("higher" as const) : ("lower" as const), delta, expected };
+  }
+
+  const verifiedCount = (rows ?? []).filter((r) => verify(r)?.kind === "match").length;
+  const mismatchCount = (rows ?? []).filter((r) => {
+    const v = verify(r);
+    return v?.kind === "higher" || v?.kind === "lower";
+  }).length;
+
   const total = useMemo(
     () => (rows ?? []).reduce((s, r) => s + r.price_cents * r.quantity, 0),
     [rows],
   );
+
 
   async function onFile(file: File) {
     if (file.size > 6_000_000) { toast.error("Image too large — keep it under 6MB"); return; }
@@ -152,9 +187,27 @@ function ReceiptPage() {
       })),
     );
     if (error) { toast.error(error.message); return; }
+
+    // Remember the purchase so the automatic shopping list can learn from it.
+    const { error: purchaseError } = await supabase.from("purchases").insert(
+      chosen.map((r) => ({
+        user_id: user.id,
+        product_id: r.productId,
+        name: r.name,
+        quantity: r.quantity,
+        unit_price_cents: Math.round(r.price_cents / Math.max(1, r.quantity)),
+        currency,
+        store_id: storeId || null,
+        source: "receipt",
+      })),
+    );
+    if (purchaseError) toast.error(purchaseError.message);
+
     qc.invalidateQueries({ queryKey: ["pantry"] });
+    qc.invalidateQueries({ queryKey: ["purchases"] });
     toast.success(`Added ${chosen.length} items to your pantry`);
     navigate({ to: "/pantry" });
+
   }
 
   if (ready && !user) {
@@ -222,6 +275,13 @@ function ReceiptPage() {
                 ))}
               </select>
               {!location && <p className="mt-2 text-xs text-muted-foreground">Pick a city in the header to list stores.</p>}
+              {storeId && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  <span className="font-semibold text-brand">{verifiedCount}</span> lines match our price finder ·{" "}
+                  <span className="font-semibold text-destructive">{mismatchCount}</span> differ — sharing them keeps
+                  everyone's prices accurate.
+                </p>
+              )}
             </div>
 
             <ul className="mt-4 rounded-2xl border border-border bg-card divide-y divide-border">
@@ -241,7 +301,21 @@ function ReceiptPage() {
                     <p className="text-xs text-muted-foreground">
                       {r.quantity} × {formatPrice(Math.round(r.price_cents / Math.max(1, r.quantity)), currency)}
                     </p>
+                    {storeId && (() => {
+                      const v = verify(r);
+                      if (!v) return null;
+                      if (v.kind === "new")
+                        return <span className="mt-1 inline-flex rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground">New price for this store</span>;
+                      if (v.kind === "match")
+                        return <span className="mt-1 inline-flex rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand">Verified — matches app price</span>;
+                      return (
+                        <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${v.kind === "higher" ? "bg-destructive/10 text-destructive" : "bg-accent/15 text-accent-foreground"}`}>
+                          {v.kind === "higher" ? "Paid more" : "Paid less"} than app ({formatPrice(v.expected, currency)})
+                        </span>
+                      );
+                    })()}
                   </div>
+
                   <select
                     value={r.productId ?? ""}
                     onChange={(e) =>

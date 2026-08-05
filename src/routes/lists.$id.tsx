@@ -119,9 +119,22 @@ function ListDetail() {
           unit: item.products?.unit ?? "pc",
         });
       }
+      // Log the purchase so the automatic shopping list learns the restock rhythm
+      await supabase.from("purchases").insert({
+        user_id: user.id,
+        product_id: item.product_id,
+        name: item.products?.name ?? "Item",
+        quantity: item.quantity,
+        unit_price_cents: item.price_cents,
+        currency: item.currency,
+        store_id: item.store_id,
+        source: "list",
+      });
       toast.success(`${item.products?.name ?? "Item"} added to your pantry`);
       qc.invalidateQueries({ queryKey: ["pantry"] });
+      qc.invalidateQueries({ queryKey: ["purchases"] });
     }
+
     qc.invalidateQueries({ queryKey: ["list-items", id] });
   }
   async function updateQty(item: Row, qty: number) {
