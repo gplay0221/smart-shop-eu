@@ -9,6 +9,8 @@ import { formatPrice } from "@/lib/location";
 import { CITY_CENTERS, haversineKm, formatKm, mapsLink } from "@/lib/geo";
 import { EcoBadge } from "@/components/eco-badge";
 import { ReportPriceDialog } from "@/components/report-price-dialog";
+import { PriceForecast } from "@/components/price-forecast";
+
 import { ArrowLeft, MapPin, TrendingDown, Plus, Check, Bell, Navigation, ExternalLink, Leaf, PackageX, Flag } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
