@@ -262,6 +262,20 @@ function ProductPage() {
               </div>
             )}
 
+            {comparison && comparison.length > 0 && (
+              <div className="mb-6">
+                <PriceForecast
+                  product={product.name}
+                  category={product.category}
+                  unit={product.unit}
+                  currentCents={Math.min(...comparison.map((c) => c.price_cents))}
+                  currency={comparison[0].currency}
+                  country={location?.countryName}
+                  city={location?.cityName}
+                  recentCents={comparison.map((c) => c.price_cents)}
+                />
+              </div>
+            )}
 
 
             {alertOpen && (
