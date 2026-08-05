@@ -84,10 +84,45 @@ function ReceiptPage() {
     },
   });
 
+  const { data: appPrices = [] } = useQuery({
+    queryKey: ["store-prices", storeId],
+    enabled: !!storeId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("prices")
+        .select("product_id,price_cents,currency")
+        .eq("store_id", storeId);
+      return data ?? [];
+    },
+  });
+
+  const priceMap = useMemo(
+    () => new Map(appPrices.map((p) => [p.product_id, p.price_cents])),
+    [appPrices],
+  );
+
+  function verify(row: Row) {
+    if (!row.productId) return null;
+    const expected = priceMap.get(row.productId);
+    if (expected === undefined) return { kind: "new" as const, delta: 0, expected: 0 };
+    const paid = Math.round(row.price_cents / Math.max(1, row.quantity));
+    const delta = paid - expected;
+    const pct = expected ? Math.abs(delta) / expected : 1;
+    if (pct <= 0.03) return { kind: "match" as const, delta, expected };
+    return { kind: delta > 0 ? ("higher" as const) : ("lower" as const), delta, expected };
+  }
+
+  const verifiedCount = (rows ?? []).filter((r) => verify(r)?.kind === "match").length;
+  const mismatchCount = (rows ?? []).filter((r) => {
+    const v = verify(r);
+    return v?.kind === "higher" || v?.kind === "lower";
+  }).length;
+
   const total = useMemo(
     () => (rows ?? []).reduce((s, r) => s + r.price_cents * r.quantity, 0),
     [rows],
   );
+
 
   async function onFile(file: File) {
     if (file.size > 6_000_000) { toast.error("Image too large — keep it under 6MB"); return; }

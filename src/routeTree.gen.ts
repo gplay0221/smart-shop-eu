@@ -17,6 +17,7 @@ import { Route as PlanRouteImport } from './routes/plan'
 import { Route as PantryRouteImport } from './routes/pantry'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ListsRouteImport } from './routes/lists'
+import { Route as AutolistRouteImport } from './routes/autolist'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
@@ -66,6 +67,11 @@ const ListsRoute = ListsRouteImport.update({
   path: '/lists',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AutolistRoute = AutolistRouteImport.update({
+  id: '/autolist',
+  path: '/autolist',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
+  '/autolist': typeof AutolistRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
+  '/autolist': typeof AutolistRoute
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
+  '/autolist': typeof AutolistRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/auth'
+    | '/autolist'
     | '/lists'
     | '/onboarding'
     | '/pantry'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/auth'
+    | '/autolist'
     | '/onboarding'
     | '/pantry'
     | '/plan'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/auth'
+    | '/autolist'
     | '/lists'
     | '/onboarding'
     | '/pantry'
@@ -223,6 +235,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AuthRoute: typeof AuthRoute
+  AutolistRoute: typeof AutolistRoute
   ListsRoute: typeof ListsRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
   PantryRoute: typeof PantryRoute
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/lists'
       fullPath: '/lists'
       preLoaderRoute: typeof ListsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/autolist': {
+      id: '/autolist'
+      path: '/autolist'
+      fullPath: '/autolist'
+      preLoaderRoute: typeof AutolistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -369,6 +389,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AuthRoute: AuthRoute,
+  AutolistRoute: AutolistRoute,
   ListsRoute: ListsRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
   PantryRoute: PantryRoute,
@@ -384,13 +405,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
