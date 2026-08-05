@@ -187,9 +187,27 @@ function ReceiptPage() {
       })),
     );
     if (error) { toast.error(error.message); return; }
+
+    // Remember the purchase so the automatic shopping list can learn from it.
+    const { error: purchaseError } = await supabase.from("purchases").insert(
+      chosen.map((r) => ({
+        user_id: user.id,
+        product_id: r.productId,
+        name: r.name,
+        quantity: r.quantity,
+        unit_price_cents: Math.round(r.price_cents / Math.max(1, r.quantity)),
+        currency,
+        store_id: storeId || null,
+        source: "receipt",
+      })),
+    );
+    if (purchaseError) toast.error(purchaseError.message);
+
     qc.invalidateQueries({ queryKey: ["pantry"] });
+    qc.invalidateQueries({ queryKey: ["purchases"] });
     toast.success(`Added ${chosen.length} items to your pantry`);
     navigate({ to: "/pantry" });
+
   }
 
   if (ready && !user) {
