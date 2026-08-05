@@ -41,9 +41,13 @@ export function SiteHeader() {
             <Link to="/receipt" className="hover:text-brand transition-colors [&.active]:text-foreground">
               Receipt
             </Link>
+            <Link to="/autolist" className="hover:text-brand transition-colors [&.active]:text-foreground">
+              Auto list
+            </Link>
             <Link to="/alerts" className="hover:text-brand transition-colors [&.active]:text-foreground">
               Alerts
             </Link>
+
 
 
 
