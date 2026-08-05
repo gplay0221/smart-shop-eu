@@ -275,6 +275,13 @@ function ReceiptPage() {
                 ))}
               </select>
               {!location && <p className="mt-2 text-xs text-muted-foreground">Pick a city in the header to list stores.</p>}
+              {storeId && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  <span className="font-semibold text-brand">{verifiedCount}</span> lines match our price finder ·{" "}
+                  <span className="font-semibold text-destructive">{mismatchCount}</span> differ — sharing them keeps
+                  everyone's prices accurate.
+                </p>
+              )}
             </div>
 
             <ul className="mt-4 rounded-2xl border border-border bg-card divide-y divide-border">
@@ -294,7 +301,21 @@ function ReceiptPage() {
                     <p className="text-xs text-muted-foreground">
                       {r.quantity} × {formatPrice(Math.round(r.price_cents / Math.max(1, r.quantity)), currency)}
                     </p>
+                    {storeId && (() => {
+                      const v = verify(r);
+                      if (!v) return null;
+                      if (v.kind === "new")
+                        return <span className="mt-1 inline-flex rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground">New price for this store</span>;
+                      if (v.kind === "match")
+                        return <span className="mt-1 inline-flex rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand">Verified — matches app price</span>;
+                      return (
+                        <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${v.kind === "higher" ? "bg-destructive/10 text-destructive" : "bg-accent/15 text-accent-foreground"}`}>
+                          {v.kind === "higher" ? "Paid more" : "Paid less"} than app ({formatPrice(v.expected, currency)})
+                        </span>
+                      );
+                    })()}
                   </div>
+
                   <select
                     value={r.productId ?? ""}
                     onChange={(e) =>
