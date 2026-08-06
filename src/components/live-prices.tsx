@@ -13,6 +13,14 @@ function freshness(iso: string) {
   return `${Math.round(hrs / 24)} d ago`;
 }
 
+const SOURCE_LABEL: Record<string, string> = {
+  flyer: "Flyer",
+  receipt: "Receipt",
+  catalog: "In-store",
+  headless: "Scraped",
+  live: "Live",
+};
+
 /** Live retailer prices for the current search, shown inside the price finder. */
 export function LivePrices({ query }: { query: string }) {
   const [postalCode, setPostalCode] = useState("");
@@ -62,9 +70,11 @@ export function LivePrices({ query }: { query: string }) {
         </div>
       </div>
 
-      {data?.isDemoData && (
-        <p className="mt-4 rounded-xl bg-secondary px-3 py-2 text-xs font-semibold text-muted-foreground">
-          Demo retailer data — not real prices.
+      {data && data.meta.source_mix.length > 0 && (
+        <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {data.meta.source_mix.map((s) => SOURCE_LABEL[s] ?? s).join(" · ")} ·{" "}
+          {data.meta.location_used}
+          {data.meta.from_cache ? " · cached" : ""}
         </p>
       )}
 
@@ -76,7 +86,8 @@ export function LivePrices({ query }: { query: string }) {
         <div className="mt-6 rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
           <Radio className="size-5 text-muted-foreground" />
           <p className="mt-2 font-medium text-foreground">No live offers for “{term}” right now.</p>
-          <p className="mt-1">{data.disclaimer}</p>
+          {data.meta.notes.length > 0 && <p className="mt-1">{data.meta.notes.join(" · ")}</p>}
+          <p className="mt-1">{data.meta.disclaimer}</p>
         </div>
       )}
 
@@ -85,15 +96,18 @@ export function LivePrices({ query }: { query: string }) {
           <div className="mt-6 grid gap-3">
             {data.offers.slice(0, 8).map((o, i) => (
               <div
-                key={`${o.retailer}-${o.title}-${i}`}
+                key={`${o.store_id}-${o.title}-${i}`}
                 className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface px-4 py-3"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-foreground">{o.retailer}</span>
-                    {o.kind === "prospekt" && (
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {SOURCE_LABEL[o.source_type] ?? o.source_type}
+                    </span>
+                    {o.flyer_badge && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand">
-                        <Tag className="size-3" /> Flyer
+                        <Tag className="size-3" /> {o.flyer_badge}
                       </span>
                     )}
                     {i === 0 && (
@@ -105,11 +119,12 @@ export function LivePrices({ query }: { query: string }) {
                   <p className="mt-0.5 truncate text-sm font-medium text-foreground">{o.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {[
-                      o.storeName,
-                      o.distanceKm != null ? `${o.distanceKm} km` : null,
+                      o.store_name,
+                      o.distance_km != null ? `${o.distance_km} km` : null,
                       o.unit,
-                      o.validTo ? `until ${o.validTo}` : null,
-                      freshness(o.capturedAt),
+                      o.discount_percent > 0 ? `−${o.discount_percent}%` : null,
+                      o.valid_to ? `until ${o.valid_to}` : null,
+                      freshness(o.captured_at),
                     ]
                       .filter(Boolean)
                       .join(" · ")}
@@ -117,11 +132,11 @@ export function LivePrices({ query }: { query: string }) {
                 </div>
                 <div className="flex items-center gap-3">
                   <p className="font-display text-xl font-bold text-brand">
-                    {formatPrice(o.priceCents, o.currency)}
+                    {formatPrice(Math.round(o.price * 100), o.currency)}
                   </p>
-                  {o.sourceUrl && (
+                  {o.url && (
                     <a
-                      href={o.sourceUrl}
+                      href={o.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-brand"
@@ -134,7 +149,7 @@ export function LivePrices({ query }: { query: string }) {
               </div>
             ))}
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">{data.disclaimer}</p>
+          <p className="mt-4 text-xs text-muted-foreground">{data.meta.disclaimer}</p>
         </>
       )}
     </section>
