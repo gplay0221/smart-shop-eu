@@ -1,32 +1,51 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-/** Public live-price lookup used by the price finder. */
+/** Public multi-source price lookup used by the price finder. */
 export const getLivePrices = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
       .object({
         query: z.string().min(1).max(120),
         gtin: z.string().max(14).optional(),
-        postalCode: z.string().max(5).optional(),
+        postalCode: z.string().max(64).optional(),
+        countryCode: z.string().max(2).optional(),
         forceRefresh: z.boolean().optional(),
       })
       .parse(input),
   )
   .handler(async ({ data }) => {
-    const { searchLivePrices } = await import("@/lib/live-price.server");
+    const { searchPrices } = await import("@/lib/price-engine/engine.server");
+    const { DISCLAIMER } = await import("@/lib/price-engine/types");
     try {
-      return await searchLivePrices(data);
+      return await searchPrices({
+        query: data.query,
+        ...(data.gtin ? { barcode: data.gtin } : {}),
+        ...(data.postalCode ? { location: data.postalCode } : {}),
+        ...(data.countryCode ? { countryCode: data.countryCode } : {}),
+        ...(data.forceRefresh ? { forceRefresh: true } : {}),
+      });
     } catch (error) {
       return {
-        query: { text: data.query, gtin: data.gtin ?? null },
-        location: { postalCode: data.postalCode ?? null },
+        normalized_product: {
+          id: data.query,
+          name: data.query,
+          barcode: data.gtin ?? null,
+          brand: null,
+          size: null,
+          category: null,
+          productId: null,
+          terms: [],
+        },
         offers: [],
-        source: "none" as const,
-        sourceStatus: { online: "unavailable", prospekt: "unavailable" },
-        isDemoData: false,
-        cached: false,
-        disclaimer: error instanceof Error ? error.message : "Live prices are temporarily unavailable.",
+        meta: {
+          generated_at: new Date().toISOString(),
+          location_used: data.postalCode ?? "—",
+          source_mix: [],
+          from_cache: false,
+          notes: [error instanceof Error ? error.message : "Price lookup failed."],
+          disclaimer: DISCLAIMER,
+        },
       };
     }
   });
