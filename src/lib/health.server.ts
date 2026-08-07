@@ -45,8 +45,8 @@ export async function scraperHealth(): Promise<Check[]> {
     supabaseAdmin.from("price_sources").select("chain, catalog_url, deals_url, active").eq("active", true),
     supabaseAdmin
       .from("price_sync_runs")
-      .select("chain, status, offers_found, error, created_at")
-      .order("created_at", { ascending: false })
+      .select("chain, status, offers_found, error, started_at")
+      .order("started_at", { ascending: false })
       .limit(20),
     supabaseAdmin.from("scraped_offers").select("id", { count: "exact", head: true }),
   ]);
@@ -96,7 +96,7 @@ export async function scraperHealth(): Promise<Check[]> {
     detail: last
       ? `${last.chain} · ${last.status} · ${last.offers_found ?? 0} offers${last.error ? ` · ${last.error}` : ""}`
       : "no sync has run yet",
-    ...(last ? { metric: new Date(last.created_at).toLocaleString("en-GB") } : {}),
+    ...(last ? { metric: new Date(last.started_at).toLocaleString("en-GB") } : {}),
   });
 
   checks.push({
