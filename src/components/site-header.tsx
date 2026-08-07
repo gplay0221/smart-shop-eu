@@ -54,6 +54,10 @@ export function SiteHeader() {
             <Link to="/rewards" className="hover:text-brand transition-colors [&.active]:text-foreground">
               Rewards
             </Link>
+            <Link to="/health" className="hover:text-brand transition-colors [&.active]:text-foreground">
+              Status
+            </Link>
+
 
           </nav>
         </div>

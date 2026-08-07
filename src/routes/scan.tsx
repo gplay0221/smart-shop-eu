@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ClientOnly } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useCallback, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
+import { resolveBarcode } from "@/lib/barcode.functions";
 import { ScanBarcode, Search } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,27 +31,32 @@ function ScanPage() {
   const [manual, setManual] = useState("");
   const [looking, setLooking] = useState(false);
 
+  const resolve = useServerFn(resolveBarcode);
+
   const lookup = useCallback(
     async (code: string) => {
+      const barcode = code.trim();
       setLooking(true);
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, name")
-        .eq("barcode", code.trim())
-        .maybeSingle();
-      setLooking(false);
-      if (error) {
-        toast.error(error.message);
-        return;
+      try {
+        const product = await resolve({ data: { barcode } });
+        if (!product) {
+          toast.error(`No product found for ${barcode}`);
+          return;
+        }
+        toast.success(
+          `Found ${[product.brand, product.name].filter(Boolean).join(" ")}`,
+          product.source === "openfoodfacts"
+            ? { description: "Imported from the open product database — prices will fill in as shoppers report them." }
+            : undefined,
+        );
+        navigate({ to: "/product/$id", params: { id: product.id } });
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Lookup failed");
+      } finally {
+        setLooking(false);
       }
-      if (!data) {
-        toast.error(`No product found for ${code}`);
-        return;
-      }
-      toast.success(`Found ${data.name}`);
-      navigate({ to: "/product/$id", params: { id: data.id } });
     },
-    [navigate],
+    [navigate, resolve],
   );
 
   return (
