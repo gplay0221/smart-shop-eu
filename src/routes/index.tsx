@@ -44,8 +44,15 @@ function Home() {
   const { data: products } = useQuery({
     queryKey: ["search", q],
     queryFn: async () => {
+      const term = q.trim();
       let query = supabase.from("products").select("*").order("name").limit(60);
-      if (q.trim()) query = query.ilike("name", `%${q.trim()}%`);
+      if (term) {
+        // Brand-aware: "heinz", "ketchup" and "heinz ketchup" all match.
+        const words = term.split(/\s+/).slice(0, 4);
+        const filters = [`name.ilike.%${term}%`, `brand.ilike.%${term}%`];
+        for (const w of words) filters.push(`name.ilike.%${w}%`, `brand.ilike.%${w}%`);
+        query = query.or(filters.join(","));
+      }
       const { data, error } = await query;
       if (error) throw error;
       return data;

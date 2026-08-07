@@ -41,12 +41,21 @@ export async function normalizeProduct(input: {
     row = data ?? null;
   }
   if (!row && norm) {
+    const words = norm.split(" ").filter((w) => w.length > 2);
+    const filters = [`name.ilike.%${query}%`, `brand.ilike.%${query}%`];
+    for (const w of words) filters.push(`name.ilike.%${w}%`, `brand.ilike.%${w}%`);
     const { data } = await supabaseAdmin
       .from("products")
       .select("id, name, brand, category, unit, barcode")
-      .ilike("name", `%${query}%`)
-      .limit(1);
-    row = data?.[0] ?? null;
+      .or(filters.join(","))
+      .limit(5);
+    // Prefer a row that matches brand and name when the user typed both.
+    row =
+      data?.find((p) =>
+        words.every((w) => `${p.brand ?? ""} ${p.name}`.toLowerCase().includes(w)),
+      ) ??
+      data?.[0] ??
+      null;
   }
 
   const terms = Array.from(
