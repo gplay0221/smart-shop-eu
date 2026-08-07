@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ClientOnly } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useCallback, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
+import { resolveBarcode } from "@/lib/barcode.functions";
 import { ScanBarcode, Search } from "lucide-react";
 import { toast } from "sonner";
 

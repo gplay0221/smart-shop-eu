@@ -17,6 +17,7 @@ import { Route as PlanRouteImport } from './routes/plan'
 import { Route as PantryRouteImport } from './routes/pantry'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ListsRouteImport } from './routes/lists'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as AutolistRouteImport } from './routes/autolist'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AlertsRouteImport } from './routes/alerts'
@@ -65,6 +66,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const ListsRoute = ListsRouteImport.update({
   id: '/lists',
   path: '/lists',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AutolistRoute = AutolistRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/autolist': typeof AutolistRoute
+  '/health': typeof HealthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/autolist': typeof AutolistRoute
+  '/health': typeof HealthRoute
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
   '/plan': typeof PlanRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
   '/autolist': typeof AutolistRoute
+  '/health': typeof HealthRoute
   '/lists': typeof ListsRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/pantry': typeof PantryRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/auth'
     | '/autolist'
+    | '/health'
     | '/lists'
     | '/onboarding'
     | '/pantry'
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/auth'
     | '/autolist'
+    | '/health'
     | '/onboarding'
     | '/pantry'
     | '/plan'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/auth'
     | '/autolist'
+    | '/health'
     | '/lists'
     | '/onboarding'
     | '/pantry'
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   AlertsRoute: typeof AlertsRoute
   AuthRoute: typeof AuthRoute
   AutolistRoute: typeof AutolistRoute
+  HealthRoute: typeof HealthRoute
   ListsRoute: typeof ListsRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
   PantryRoute: typeof PantryRoute
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/lists'
       fullPath: '/lists'
       preLoaderRoute: typeof ListsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/autolist': {
@@ -390,6 +410,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlertsRoute: AlertsRoute,
   AuthRoute: AuthRoute,
   AutolistRoute: AutolistRoute,
+  HealthRoute: HealthRoute,
   ListsRoute: ListsRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
   PantryRoute: PantryRoute,
@@ -405,13 +426,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
