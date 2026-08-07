@@ -60,7 +60,7 @@ export async function normalizeProduct(input: {
 
   const terms = Array.from(
     new Set(
-      [norm, row ? normalizeText(row.name) : ""]
+      [norm, row ? normalizeText(row.name) : "", row?.brand ? normalizeText(row.brand) : ""]
         .flatMap((t) => [t, ...t.split(" ")])
         .filter((t) => t.length > 2),
     ),
